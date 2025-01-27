@@ -288,7 +288,7 @@ export default function ReviewPage() {
               <h3 className="text-lg font-semibold">Campaign</h3>
               <div className="space-y-4">
                 {/* Only show the 7th indexed item */}
-                {currentRow[7] && (
+                {currentRow[7] && ( //CHANGE THIS TO BE THE CAMPAIGN
                   <div className="border p-2 rounded w-full">
                     <div className="text-sm font-medium text-gray-500">
                       {headers[7] || `Column 8`}
@@ -320,7 +320,7 @@ export default function ReviewPage() {
             <div className="space-y-3">
               <h3 className="text-lg font-semibold">Scores</h3>
               <div className="grid grid-cols-2 gap-4">
-                {currentRow.slice(1, 7).map((cell, index) => (
+                {currentRow.slice(1, 5).map((cell, index) => ( //THIS IS WHAT SCORES GET DISPLAYED
                   cell && (
                     <div key={index} className="border p-2 rounded">
                       <div className="text-sm font-medium text-gray-500">
@@ -337,7 +337,18 @@ export default function ReviewPage() {
             <div className="space-y-3">
               <h3 className="text-lg font-semibold">Selection</h3>
               <div className="space-y-4">
+                {/* Score input */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Your Score</label>
+                  <Textarea
+                    value={response}
+                    onChange={(e) => setResponse(e.target.value)}
+                    placeholder="Enter your score here... please type only the number."
+                    className="min-h-[100px]"
+                  />
+                </div>
                 {/* Output selection */}
+                {/*
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Select Output</label>
                   <Select
@@ -356,6 +367,7 @@ export default function ReviewPage() {
                     </SelectContent>
                   </Select>
                 </div>
+                */}
 
                 {/* Response input */}
                 <div className="space-y-2">
