@@ -1,8 +1,5 @@
 import { ClerkProvider } from '@clerk/nextjs';
-import { Inter } from "next/font/google";
-import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import './globals.css'; // Import Tailwind CSS
 
 export default function RootLayout({
   children,
@@ -11,8 +8,8 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body>{children}</body>
+      <html lang="en" className="h-full">
+        <body className="min-h-full antialiased">{children}</body>
       </html>
     </ClerkProvider>
   );

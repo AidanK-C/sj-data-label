@@ -10,16 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import Papa from 'papaparse'
 
 interface ParsedData {
   headers: string[];
@@ -258,7 +250,7 @@ export default function ReviewPage() {
   }
 
   const currentRow = rows[currentRowIndex]
-  const outputColumns = currentRow ? [currentRow[1], currentRow[3], currentRow[5]] : [] // IMPORTANT: Assuming the output columns are the 2nd, 3rd, and 4th columns. This can be changed to the actual columns that are being used.
+  //const outputColumns = currentRow ? [currentRow[1], currentRow[3], currentRow[5]] : [] // IMPORTANT: Assuming the output columns are the 2nd, 3rd, and 4th columns. This can be changed to the actual columns that are being used.
 
   return (
     <div className="container mx-auto p-6">
