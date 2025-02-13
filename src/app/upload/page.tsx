@@ -136,7 +136,7 @@ export default function UploadPage() {
               type="file"
               accept=".csv"
               onChange={handleFileChange}
-              className="border-2 p-3 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="border-2 p-3 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <p className="text-sm text-gray-500 text-center">
               Maximum file size: 5MB. Only CSV files are accepted.
@@ -160,7 +160,7 @@ export default function UploadPage() {
           <Button
             onClick={handleUpload}
             disabled={!file}
-            className="w-full py-3 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full py-3 text-white bg-orange-500 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             Upload File
           </Button>

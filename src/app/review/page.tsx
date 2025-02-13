@@ -20,9 +20,63 @@ interface ParsedData {
 
 interface ReviewData {
   rowData: string[];
-  selectedOutput: string;
+  score: string;
   response: string;
 }
+
+// Add these type definitions at the top of the file
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+type FormattedValue = string | React.ReactNode;
+
+const parseAndFormatCell = (cell: string): React.ReactNode => {
+  // Update the formatValue function with proper types
+  const formatValue = (value: JsonValue, depth: number = 0): FormattedValue => {
+    if (typeof value === 'object' && value !== null) {
+      return (
+        <div className={`space-y-1 ${depth > 0 ? 'mt-1' : ''}`}>
+          {Object.entries(value).map(([nestedKey, nestedValue], i) => (
+            <div 
+              key={i} 
+              className={`pl-2 border-l-2 border-gray-200 ${depth > 0 ? 'ml-2' : ''}`}
+            >
+              <span className="text-sm font-medium text-gray-600">
+                {nestedKey}:
+              </span>{' '}
+              <span className="text-sm">
+                {formatValue(nestedValue, depth + 1)}
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    
+    // Handle arrays
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+    
+    // Return primitive values as strings
+    return String(value);
+  };
+
+  try {
+    // Check if the string looks like JSON
+    if (cell?.trim().startsWith('{') || cell?.trim().startsWith('[')) {
+      const parsed = JSON.parse(cell) as JsonValue;
+      
+      // If it's an object or array
+      if (typeof parsed === 'object' && parsed !== null) {
+        return formatValue(parsed);
+      }
+    }
+    // If not JSON or parsing fails, return as is
+    return cell;
+  } catch {  // Remove the parameter entirely since we're not using it
+    // If JSON parsing fails, return original string
+    return cell;
+  }
+};
 
 export default function ReviewPage() {
   const router = useRouter()
@@ -30,7 +84,7 @@ export default function ReviewPage() {
   const [headers, setHeaders] = useState<string[]>([])
   const [rows, setRows] = useState<string[][]>([])
   const [reviewedData, setReviewedData] = useState<ReviewData[]>([])
-  const [selectedOutput, setSelectedOutput] = useState('')
+  const [score, setScore] = useState('')
   const [response, setResponse] = useState('')
   const [isComplete, setIsComplete] = useState(false)
 
@@ -52,35 +106,31 @@ export default function ReviewPage() {
 
   const handleDownload = () => {
     try {
-      // Create headers string, including original headers plus our new columns
-      const headerRow = [...headers, 'Selected Output', 'Response'].join(',')
+      // Remove SME Output from headers
+      const headerRow = [...headers, 'Score', 'Response'].join(',')
       
-      // Create CSV content from reviewed data
       const dataRows = reviewedData.map(review => {
-        // Ensure all cells are properly escaped
         const escapedRowData = review.rowData.map(cell => {
-          // If cell contains commas, quotes, or newlines, wrap it in quotes and escape existing quotes
           if (cell && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
             return `"${cell.replace(/"/g, '""')}"`;
           }
           return cell;
         });
 
-        // Escape the response and selected output if needed
         const escapedResponse = review.response.includes(',') || 
                               review.response.includes('"') || 
                               review.response.includes('\n')
           ? `"${review.response.replace(/"/g, '""')}"`
           : review.response;
 
-        const escapedOutput = review.selectedOutput.includes(',') || 
-                            review.selectedOutput.includes('"') || 
-                            review.selectedOutput.includes('\n')
-          ? `"${review.selectedOutput.replace(/"/g, '""')}"`
-          : review.selectedOutput;
+        const escapedScore = review.score.includes(',') || 
+                           review.score.includes('"') || 
+                           review.score.includes('\n')
+          ? `"${review.score.replace(/"/g, '""')}"`
+          : review.score;
 
-        // Combine all fields
-        return [...escapedRowData, escapedOutput, escapedResponse].join(',');
+        // Remove escapedOutput and only include score and response
+        return [...escapedRowData, escapedScore, escapedResponse].join(',');
       }).join('\n');
 
       // Combine headers and data
@@ -125,7 +175,7 @@ export default function ReviewPage() {
     const updatedReviewedData = [...reviewedData];
     updatedReviewedData[currentRowIndex] = {
       rowData: currentRow,
-      selectedOutput: selectedOutput || '',
+      score: score || '',
       response: response || ''
     };
     setReviewedData(updatedReviewedData);
@@ -135,49 +185,41 @@ export default function ReviewPage() {
   const loadReviewData = (index: number) => {
     const existingReview = reviewedData[index]
     if (existingReview) {
-      setSelectedOutput(existingReview.selectedOutput)
+      setScore(existingReview.score || '')
       setResponse(existingReview.response)
     } else {
-      setSelectedOutput('')
+      setScore('')
       setResponse('')
     }
   }
 
   const handleSaveAndExit = () => {
-    // First save the current review
     saveCurrentReview()
     
-    // Download the current progress
     try {
-      // Create headers string, including original headers plus our new columns
-      const headerRow = [...headers, 'Selected Output', 'Response'].join(',')
+      const headerRow = [...headers, 'Score', 'Response'].join(',')
       
-      // Create CSV content from reviewed data
       const dataRows = reviewedData.map(review => {
-        // Ensure all cells are properly escaped
         const escapedRowData = review.rowData.map(cell => {
-          // If cell contains commas, quotes, or newlines, wrap it in quotes and escape existing quotes
           if (cell && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
             return `"${cell.replace(/"/g, '""')}"`;
           }
           return cell;
         });
 
-        // Escape the response and selected output if needed
         const escapedResponse = review.response.includes(',') || 
                               review.response.includes('"') || 
                               review.response.includes('\n')
           ? `"${review.response.replace(/"/g, '""')}"`
           : review.response;
 
-        const escapedOutput = review.selectedOutput.includes(',') || 
-                            review.selectedOutput.includes('"') || 
-                            review.selectedOutput.includes('\n')
-          ? `"${review.selectedOutput.replace(/"/g, '""')}"`
-          : review.selectedOutput;
+        const escapedScore = review.score.includes(',') || 
+                           review.score.includes('"') || 
+                           review.score.includes('\n')
+          ? `"${review.score.replace(/"/g, '""')}"`
+          : review.score;
 
-        // Combine all fields
-        return [...escapedRowData, escapedOutput, escapedResponse].join(',');
+        return [...escapedRowData, escapedScore, escapedResponse].join(',');
       }).join('\n');
 
       // Combine headers and data
@@ -197,7 +239,6 @@ export default function ReviewPage() {
       console.error('Failed to download CSV:', err);
     }
 
-    // Finally, redirect to upload page
     router.push('/upload')
   }
 
@@ -279,36 +320,48 @@ export default function ReviewPage() {
             <div className="space-y-3">
               <h3 className="text-lg font-semibold">Campaign</h3>
               <div className="space-y-4">
-                {/* Only show the 7th indexed item */}
-                {currentRow[7] && ( //CHANGE THIS TO BE THE CAMPAIGN
+                {currentRow[0] && (
                   <div className="border p-2 rounded w-full">
                     <div className="text-sm font-medium text-gray-500">
-                      {headers[7] || `Column 8`}
+                      {headers[0]}
                     </div>
-                    <div>{currentRow[7]}</div>
+                    <div>{currentRow[0]}</div>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Profile Section */}
+            {/*  WOULD BE ARRAY
+                [
+                  // First range: 3-11
+                  ...Array.from({ length: 9 }, (_, i) => i + 3),
+                  // Individual indices: 13, 14
+                  13, 14, 15,
+                  // Final range: 16-30
+                  ...Array.from({ length: 13 }, (_, i) => i + 17)
+                ]
+                */}
             <div className="space-y-3">
               <h3 className="text-lg font-semibold">Profile</h3>
               <div className="grid grid-cols-2 gap-4">
-                {currentRow.slice(8).map((cell, index) => (
-                  cell && (
+                {
+                [11]
+                .map((index) => (
+                  currentRow[index] && (
                     <div key={index} className="border p-2 rounded">
                       <div className="text-sm font-medium text-gray-500">
-                        {headers[index + 8] || `Column ${index + 9}`}
+                        {headers[index]}
                       </div>
-                      <div>{cell}</div>
+                      <div className="mt-1">
+                        {parseAndFormatCell(currentRow[index])}
+                      </div>
                     </div>
                   )
                 ))}
               </div>
             </div>
-
-            {/* Scores Section - moved here */}
+            {/* Scores Section - moved here
             <div className="space-y-3">
               <h3 className="text-lg font-semibold">Scores</h3>
               <div className="grid grid-cols-2 gap-4">
@@ -324,6 +377,7 @@ export default function ReviewPage() {
                 ))}
               </div>
             </div>
+            */}
 
             {/* Selection Section */}
             <div className="space-y-3">
@@ -333,8 +387,8 @@ export default function ReviewPage() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Your Score</label>
                   <Textarea
-                    value={response}
-                    onChange={(e) => setResponse(e.target.value)}
+                    value={score}
+                    onChange={(e) => setScore(e.target.value)}
                     placeholder="Enter your score here... please type only the number."
                     className="min-h-[100px]"
                   />
@@ -344,8 +398,8 @@ export default function ReviewPage() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Select Output</label>
                   <Select
-                    value={selectedOutput}
-                    onValueChange={setSelectedOutput}
+                    value={SMEOutput}
+                    onValueChange={setSMEOutput}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select an output" />
@@ -367,7 +421,7 @@ export default function ReviewPage() {
                   <Textarea
                     value={response}
                     onChange={(e) => setResponse(e.target.value)}
-                    placeholder="Enter your response here... Please avoid using the first person and explain why you chose the output you did and why the profile deserves the score they received based on the profile and campaign with respect to the other options"
+                    placeholder="Enter your response here... Please avoid using the first person and explain why you chose the output you did and why the profile deserves the score they received based on the profile and campaign"
                     className="min-h-[100px]"
                   />
                 </div>

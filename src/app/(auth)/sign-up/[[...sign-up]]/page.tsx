@@ -1,12 +1,9 @@
-import { SignUp } from '@clerk/nextjs'
+import { SignUp } from "@clerk/nextjs";
 
 export default function SignUpPage() {
   return (
-    <SignUp appearance={{
-      elements: {
-        formButtonPrimary: "bg-primary hover:bg-primary/90",
-        card: "shadow-none"
-      }
-    }} />
-  )
+    <div className="flex min-h-screen items-center justify-center">
+      <SignUp />
+    </div>
+  );
 }

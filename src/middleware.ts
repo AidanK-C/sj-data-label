@@ -2,12 +2,17 @@ import { authMiddleware } from "@clerk/nextjs";
 
 export default authMiddleware({
   publicRoutes: [
-    "/",
-    "/sign-in/[[...sign-in]]",
-    "/sign-up/[[...sign-up]]",
+    "/sign-in",
+    "/sign-up",
   ],
+  afterAuth(auth, req) {
+    // Handle users who aren't authenticated
+    if (!auth.userId && !auth.isPublicRoute) {
+      return Response.redirect(new URL('/sign-in', req.url));
+    }
+  }
 });
 
 export const config = {
-  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };
