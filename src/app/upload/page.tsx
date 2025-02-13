@@ -127,17 +127,30 @@ export default function UploadPage() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <div className="container mx-auto max-w-lg p-6 bg-white rounded-lg shadow-lg">
+      <div className="container mx-auto max-w-sm p-6 bg-white rounded-lg shadow-lg">
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Upload CSV File</h1>
         
         <div className="space-y-6">
-          <div className="flex flex-col gap-4">
-            <Input
-              type="file"
-              accept=".csv"
-              onChange={handleFileChange}
-              className="border-2 p-3 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-full text-center">
+              <label className="block">
+                <span className="sr-only">Choose CSV file</span>
+                <Input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileChange}
+                  className="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-1.5 file:px-4
+                    file:rounded-md file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-orange-500 file:text-white
+                    hover:file:bg-orange-600
+                    file:cursor-pointer file:transition-colors
+                    focus:outline-none focus:ring-2 focus:ring-orange-500
+                    h-12 pt-1.5"
+                />
+              </label>
+            </div>
             <p className="text-sm text-gray-500 text-center">
               Maximum file size: 5MB. Only CSV files are accepted.
             </p>
