@@ -360,7 +360,7 @@ export default function ReviewPage() {
                 onClick={handleSaveAndExit}
                 size="sm"
               >
-                Save & Exit
+                Exit
               </Button>
               <Button
                 onClick={handleNext}
